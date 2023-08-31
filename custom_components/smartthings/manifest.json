@@ -7,7 +7,7 @@
   "requirements": ["pysmartapp==0.3.3", "pysmartthings==0.7.6"],
   "dependencies": ["webhook"],
   "after_dependencies": ["cloud"],
-  "codeowners": ["@andrewsayre", "@veista"],
+  "codeowners": ["@andrewsayre", "@veista","@alrassia"],
   "iot_class": "cloud_push",
   "version": "1.0",
   "dhcp": [

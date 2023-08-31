@@ -41,7 +41,7 @@ If you are interested, please vote in discussions
 ## Installation:
 ### HACS
 - Remove your original smartthings integration if you have one set up (optional)
-- Add `https://github.com/veista/smartthings` as a Custom Repository
+- Add `https://github.com/alrassia/smartthings` as a Custom Repository
 - Install `SmartThings Custom` from the HACS Integrations tab
 - Restart Home Assistant
 - Install `SmartThings` from the HA Integrations tab
