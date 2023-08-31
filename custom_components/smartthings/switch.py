@@ -169,16 +169,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             "mdi:fridge-outline",
                             "mdi:fridge-outline",
                         ),
-                        SamsungOcfSwitch(
-                            device,
-                            "/icemaker/status/vs/0",
-                            "x.com.samsung.da.iceMaker",
-                            "On",
-                            "Off",
-                            "Ice Maker",
-                            "mdi:delete-variant",
-                            "mdi:delete-variant",
-                        ),
+                        #SamsungOcfSwitch(
+                        #    device,
+                        #    "/icemaker/status/vs/0",
+                        #    "x.com.samsung.da.iceMaker",
+                        #    "On",
+                        #    "Off",
+                        #    "Ice Maker",
+                        #    "mdi:delete-variant",
+                        #    "mdi:delete-variant",
+                        #),
                     ]
                 )
 
