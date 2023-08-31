@@ -75,7 +75,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         SamsungCooktopBurner(device, "Cooktop Bottom Right", 16),
                     ]
                 )
-            elif model in ("21K_REF_LCD_FHUB6.0", "ARTIK051_REF_17K"):
+            elif model in ("21K_REF_LCD_FHUB6.0", "ARTIK051_REF_17K", "TP2X_REF_20K"):
                 sensors.extend(
                     [
                         SamsungOcfDoorBinarySensor(
