@@ -1,4 +1,5 @@
 """Support for buttons through the SmartThings cloud API."""
+
 from __future__ import annotations
 
 from collections import namedtuple
@@ -30,20 +31,6 @@ CAPABILITY_TO_BUTTON = {
                 "dustFilterStatus",
                 "dustFilterCapacity",
                 "dustFilterResetType",
-            ],
-        )
-    ],
-    "custom.waterFilter": [
-        Map(
-            "resetWaterFilter",
-            "Reset Water Filter",
-            "mdi:air-filter",
-            None,
-            [
-                "waterFilterUsageStep",
-                "waterFilterUsage",
-                "waterFilterStatus",
-                "waterFilterResetType",
             ],
         )
     ],
