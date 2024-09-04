@@ -1,4 +1,5 @@
 """Support for select through the SmartThings cloud API."""
+
 from __future__ import annotations
 
 from collections import namedtuple
@@ -20,17 +21,6 @@ Map = namedtuple(
 )
 
 CAPABILITY_TO_SELECT = {
-    "samsungce.lamp": [
-        Map(
-            "brightnessLevel",
-            "supportedBrightnessLevel",
-            "setBrightnessLevel",
-            str,
-            "Lamp Brightness Level",
-            "mdi:brightness-6",
-            None,
-        )
-    ],
     "samsungce.dustFilterAlarm": [
         Map(
             "alarmThreshold",
@@ -42,6 +32,19 @@ CAPABILITY_TO_SELECT = {
             None,
         )
     ],
+    "samsungvd.mediaInputSource": [
+        Map(
+            Attribute.input_source,
+            "supportedInputSourcesMap",
+            "setInputSource",
+            str,
+            "Input Source",
+            "mdi:video-input-hdmi",
+            [
+                "inputSource",
+            ],
+        )
+    ]
 }
 
 
@@ -74,7 +77,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 device.status.attributes[Attribute.mnmn].value == "Samsung Electronics"
                 and device.type == "OCF"
             ):
-                model = device.status.attributes[Attribute.mnmo].value.split("|")[0]
+                model = device.status.attributes["binaryId"].value
                 supported_ac_optional_modes = [
                     str(x)
                     for x in device.status.attributes["supportedAcOptionalMode"].value
@@ -163,11 +166,32 @@ class SmartThingsSelect(SmartThingsEntity, SelectEntity):
         self._name = name
         self._icon = icon
         self._extra_state_attributes = extra_state_attributes
+        self._attr_options = self._determine_attr_options()
+
+    @property
+    def _attribute_is_map(self):
+        value = self._device.status.attributes[self._select_options_attr].value
+
+        return (
+            self._select_options_attr.endswith("Map")
+            and isinstance(value, list)
+            and len(value) > 0
+            and isinstance(value[0], dict)
+        )
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
+
+        smartthings_option = option
+        # If the given attribute is a dict instead of a list we need to pluck the id to submit to SmartThings
+        if self._attribute_is_map:
+            for value in self._device.status.attributes[self._select_options_attr].value:
+                if value["name"] == smartthings_option:
+                    smartthings_option = value["id"]
+                    break
+
         result = await self._device.command(
-            "main", self._capability, self._select_command, [self._datatype(option)]
+            "main", self._capability, self._select_command, [self._datatype(smartthings_option)]
         )
         if result:
             self._device.status.update_attribute_value(self._attribute, option)
@@ -185,9 +209,14 @@ class SmartThingsSelect(SmartThingsEntity, SelectEntity):
         """Return a unique ID."""
         return f"{self._device.device_id}.{self._attribute}"
 
-    @property
-    def options(self) -> list[str]:
+    def _determine_attr_options(self) -> list[str]:
         """return valid options"""
+        if self._attribute_is_map:
+            return [
+                str(x["name"])
+                for x in self._device.status.attributes[self._select_options_attr].value
+            ]
+
         return [
             str(x)
             for x in self._device.status.attributes[self._select_options_attr].value

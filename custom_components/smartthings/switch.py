@@ -1,8 +1,10 @@
 """Support for switches through the SmartThings cloud API."""
+
 from __future__ import annotations
 
 from collections import namedtuple
 from collections.abc import Sequence
+from typing import Any
 
 import asyncio
 
@@ -10,6 +12,9 @@ from pysmartthings import Capability, Attribute
 from pysmartthings.device import DeviceEntity
 
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
@@ -29,6 +34,18 @@ CAPABILITY_TO_SWITCH = {
             "off",
             "Switch",
             None,
+            None,
+        ),
+    ],
+    Capability.audio_mute: [
+        Map(
+            Attribute.mute,
+            "setMute",
+            "setMute",
+            "muted",
+            "unmuted",
+            "Mute",
+            "mdi:volume-mute",
             None,
         )
     ],
@@ -58,15 +75,19 @@ CAPABILITY_TO_SWITCH = {
     ],
 }
 
-
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
     """Add switches for a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
+
     switches = []
     for device in broker.devices.values():
         for capability in broker.get_assigned(device.device_id, "switch"):
             maps = CAPABILITY_TO_SWITCH[capability]
-            if capability in ("custom.autoCleaningMode", "custom.spiMode"):
+            if capability in ("custom.autoCleaningMode", "custom.spiMode", Capability.audio_mute):
                 switches.extend(
                     [
                         SmartThingsCustomSwitch(
@@ -106,7 +127,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             device.status.attributes[Attribute.mnmn].value == "Samsung Electronics"
             and device.type == "OCF"
         ):
-            model = device.status.attributes[Attribute.mnmo].value.split("|")[0]
+            model = device.status.attributes["binaryId"].value
             if (
                 Capability.execute
                 and broker.any_assigned(device.device_id, "climate")
@@ -128,25 +149,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             "Light",
                             "mdi:led-on",
                             "mdi:led-variant-off",
-                        )
-                    ]
-                )
-            elif model in ("TP2X_DA-KS-RANGE-0101X",):
-                switches.extend(
-                    [
-                        SamsungOcfSwitch(
+                        ),
+                        SmartThingsCustomSwitch(
                             device,
-                            "/mode/vs/0",
-                            "x.com.samsung.da.options",
-                            ["Sound_On"],
-                            ["Sound_Off"],
-                            "Sound",
+                            "audioVolume",
+                            "volume",
+                            "setVolume",
+                            "setVolume",
+                            100,
+                            0,
+                            "Audio",
                             "mdi:volume-high",
                             "mdi:volume-variant-off",
                         )
                     ]
                 )
-            elif model in ("21K_REF_LCD_FHUB6.0", "ARTIK051_REF_17K", "TP2X_REF_20K"):
+            elif model in ("21K_REF_LCD_FHUB6.0", "ARTIK051_REF_17K"):
                 switches.extend(
                     [
                         SamsungOcfSwitch(
@@ -169,16 +187,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             "mdi:fridge-outline",
                             "mdi:fridge-outline",
                         ),
-                        #SamsungOcfSwitch(
-                        #    device,
-                        #    "/icemaker/status/vs/0",
-                        #    "x.com.samsung.da.iceMaker",
-                        #    "On",
-                        #    "Off",
-                        #    "Ice Maker",
-                        #    "mdi:delete-variant",
-                        #    "mdi:delete-variant",
-                        #),
+                        SamsungOcfSwitch(
+                            device,
+                            "/icemaker/status/vs/0",
+                            "x.com.samsung.da.iceMaker",
+                            "On",
+                            "Off",
+                            "Ice Maker",
+                            "mdi:delete-variant",
+                            "mdi:delete-variant",
+                        ),
                     ]
                 )
 
@@ -219,16 +237,16 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
         self._icon = icon
         self._extra_state_attributes = extra_state_attributes
 
-    async def async_turn_off(self, **kwargs) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""
-        await getattr(self._device, self._off_command)(set_status=True)
+        await self._device.switch_off(set_status=True)
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
 
-    async def async_turn_on(self, **kwargs) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
-        await getattr(self._device, self._on_command)(set_status=True)
+        await self._device.switch_on(set_status=True)
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
@@ -330,9 +348,7 @@ class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
     def is_on(self) -> bool:
         """Return true if switch is on."""
         if self._on_value is not None:
-            if self._device.status.attributes[self._attribute].value == self._on_value:
-                return True
-            return False
+            return self._device.status.attributes[self._attribute].value == self._on_value
         return self._device.status.attributes[self._attribute].value
 
     @property
@@ -381,9 +397,7 @@ class SamsungOcfSwitch(SmartThingsEntity, SwitchEntity):
 
     def startup(self):
         """Make sure that OCF page visits mode on startup"""
-        tasks = []
-        tasks.append(self._device.execute(self._page))
-        asyncio.gather(*tasks)
+        asyncio.gather(self._device.execute(self._page))
 
     async def async_turn_off(self, **kwargs) -> None:
         """Turn the switch off."""

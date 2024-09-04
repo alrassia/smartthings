@@ -1,13 +1,15 @@
 """Constants used by the SmartThings component and platforms."""
+
 from datetime import timedelta
 import re
 
 from homeassistant.const import (
-    ELECTRIC_POTENTIAL_VOLT,
+    Platform,
+    UnitOfTemperature,
+    UnitOfPower,
+    UnitOfTime,
+    UnitOfElectricPotential,
     PERCENTAGE,
-    POWER_WATT,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
 )
 
 DOMAIN = "smartthings"
@@ -40,18 +42,18 @@ STORAGE_VERSION = 1
 # Ordered 'specific to least-specific platform' in order for capabilities
 # to be drawn-down and represented by the most appropriate platform.
 PLATFORMS = [
-    "climate",
-    "fan",
-    "light",
-    "lock",
-    "cover",
-    "number",
-    "select",
-    "button",
-    "switch",
-    "binary_sensor",
-    "sensor",
-    "scene",
+    Platform.BINARY_SENSOR,
+    Platform.CLIMATE,
+    Platform.COVER,
+    Platform.FAN,
+    Platform.LIGHT,
+    Platform.LOCK,
+    Platform.SCENE,
+    Platform.SENSOR,
+    Platform.SWITCH,
+    # Added by fork
+    Platform.SELECT,
+    Platform.BUTTON,
 ]
 
 IGNORED_CAPABILITIES = [
@@ -60,13 +62,13 @@ IGNORED_CAPABILITIES = [
 ]
 
 UNIT_MAP = {
-    "C": TEMP_CELSIUS,
-    "F": TEMP_FAHRENHEIT,
-    "Hour": "Hour",
-    "minute": "Minute",
+    "C": UnitOfTemperature.CELSIUS,
+    "F": UnitOfTemperature.FAHRENHEIT,
+    "Hour": UnitOfTime.HOURS,
+    "minute": UnitOfTime.MINUTES,
     "%": PERCENTAGE,
-    "W": POWER_WATT,
-    "V": ELECTRIC_POTENTIAL_VOLT,
+    "W": UnitOfPower.WATT,
+    "V": UnitOfElectricPotential.VOLT,
 }
 
 TOKEN_REFRESH_INTERVAL = timedelta(days=14)
