@@ -303,7 +303,7 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
 
     @property
     def icon(self) -> str | None:
-        return self._icon
+        return self.icon
 
     @property
     def extra_state_attributes(self):
