@@ -301,9 +301,9 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
 
         return False if status is None else status.switch
 
-    @property
-    def icon(self) -> str | None:
-        return self.icon
+    #@property
+    #def icon(self) -> str | None:
+    #    return self._device.icon
 
     @property
     def extra_state_attributes(self):
