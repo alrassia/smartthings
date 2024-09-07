@@ -305,17 +305,17 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
     #def icon(self) -> str | None:
     #    return self._device.icon
 
-    @property
-    def extra_state_attributes(self):
-        """Return device specific state attributes."""
-        state_attributes = {}
-        if self._extra_state_attributes is not None:
-            attributes = self._extra_state_attributes
-            for attribute in attributes:
-                value = self._device.status.attributes[attribute].value
-                if value is not None:
-                    state_attributes[attribute] = value
-        return state_attributes
+    #@property
+    #def extra_state_attributes(self):
+    #    """Return device specific state attributes."""
+    #    state_attributes = {}
+    #    if self._extra_state_attributes is not None:
+    #        attributes = self._extra_state_attributes
+    #        for attribute in attributes:
+    #            value = self._device.status.attributes[attribute].value
+    #            if value is not None:
+    #                state_attributes[attribute] = value
+    #    return state_attributes
 
 
 class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
