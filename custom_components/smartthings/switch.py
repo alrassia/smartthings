@@ -287,7 +287,7 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
     @property
     def name(self) -> str:
         """Return the name of the switch."""
-        return f"{self._device.label} {self._name}"
+        return f"{self._device.label} {self._device.name}"
 
     @property
     def unique_id(self) -> str:
@@ -372,7 +372,7 @@ class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
     @property
     def name(self) -> str:
         """Return the name of the switch."""
-        return f"{self._device.label} {self._name}"
+        return f"{self._device.label} {self._device.name}"
 
     @property
     def unique_id(self) -> str:

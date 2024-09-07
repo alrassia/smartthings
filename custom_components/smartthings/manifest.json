@@ -3,11 +3,9 @@
   "name": "SmartThings",
   "version": "1.0",
   "after_dependencies": ["cloud"],
-  "codeowners": ["@beschoenen"],
   "config_flow": true,
   "dependencies": ["webhook"],
   "after_dependencies": ["cloud"],
-  "codeowners": ["@andrewsayre", "@veista"],
   "iot_class": "cloud_push",
   "version": "1.0",
   "dhcp": [
