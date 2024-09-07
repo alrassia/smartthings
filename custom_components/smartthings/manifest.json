@@ -1,12 +1,9 @@
 {
   "domain": "smartthings",
   "name": "SmartThings",
-  "version": "1.0",
   "after_dependencies": ["cloud"],
   "config_flow": true,
   "dependencies": ["webhook"],
-  "after_dependencies": ["cloud"],
-  "iot_class": "cloud_push",
   "version": "1.0",
   "dhcp": [
     {

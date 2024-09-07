@@ -292,7 +292,7 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
     @property
     def unique_id(self) -> str:
         """Return a unique ID."""
-        return f"{self._device.device_id}.{self._attribute}"
+        return f"{self._device.device_id}.{self._component_id}"
 
     @property
     def is_on(self) -> bool:
