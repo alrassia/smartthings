@@ -229,9 +229,10 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
     """Define a SmartThings switch."""
 
-    """"def __init__(
+    def __init__(
         self,
         device: DeviceEntity,
+        component_id: str | None,
         attribute: str,
         on_command: str,
         off_command: str,
@@ -241,8 +242,10 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
         icon: str | None,
         extra_state_attributes: str | None,
     ) -> None:
-        """""""Init the class."""""""
+        """"Init the class."""
         super().__init__(device)
+        self._component_id = component_id
+        self._external_component_id = "main" if component_id is None else component_id
         self._attribute = attribute
         self._on_command = on_command
         self._off_command = off_command
@@ -251,9 +254,17 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
         self._name = name
         self._icon = icon
         self._extra_state_attributes = extra_state_attributes
-    """
-    def __init__(self, device, component_id: str | None = None) -> None:
-        """Init the class."""
+
+        if component_id is not None:
+            self._attr_name = format_component_name(
+                device.label, Platform.SWITCH, component_id
+            )
+            self._attr_unique_id = format_component_name(
+                device.device_id, Platform.SWITCH, component_id, "."
+            )
+    """" 
+   def __init__(self, device, component_id: str | None = None) -> None:
+        """"""Init the class.""""""
         super().__init__(device)
         self._component_id = component_id
         self._external_component_id = "main" if component_id is None else component_id
@@ -265,7 +276,8 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
             self._attr_unique_id = format_component_name(
                 device.device_id, Platform.SWITCH, component_id, "."
             )
-
+    """
+            
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""
         await self._device.switch_off(
@@ -301,21 +313,21 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
 
         return False if status is None else status.switch
 
-    #@property
-    #def icon(self) -> str | None:
-    #    return self._device.icon
+    @property
+    def icon(self) -> str | None:
+        return self._device.icon
 
-    #@property
-    #def extra_state_attributes(self):
-    #    """Return device specific state attributes."""
-    #    state_attributes = {}
-    #    if self._extra_state_attributes is not None:
-    #        attributes = self._extra_state_attributes
-    #        for attribute in attributes:
-    #            value = self._device.status.attributes[attribute].value
-    #            if value is not None:
-    #                state_attributes[attribute] = value
-    #    return state_attributes
+    @property
+    def extra_state_attributes(self):
+        """Return device specific state attributes."""
+        state_attributes = {}
+        if self._extra_state_attributes is not None:
+            attributes = self._extra_state_attributes
+            for attribute in attributes:
+                value = self._device.status.attributes[attribute].value
+                if value is not None:
+                    state_attributes[attribute] = value
+        return state_attributes
 
 
 class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
