@@ -19,6 +19,8 @@ from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from custom_components.smartthings import _LOGGER
+
 from .const import DATA_BROKERS, DOMAIN
 from .utils import format_component_name, get_device_attributes, get_device_status
 from .entity import SmartThingsEntity
@@ -166,7 +168,7 @@ class SmartThingsBinarySensor(SmartThingsEntity, BinarySensorEntity):
     def is_on(self):
         """Return true if the binary sensor is on."""
         status = get_device_status(self._device, self._component_id)
-
+        _LOGGER.debug("status: %s of device %s", status, self._device._name)
         if status is None:
             return False
         return status

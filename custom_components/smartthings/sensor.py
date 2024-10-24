@@ -32,6 +32,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
+from custom_components.smartthings import _LOGGER
+
 from .const import DATA_BROKERS, DOMAIN
 from .utils import format_component_name, get_device_attributes, get_device_status
 from .entity import SmartThingsEntity
@@ -421,7 +423,7 @@ CAPABILITY_TO_SENSORS: dict[str, list[Map]] = {
         Map(
             Attribute.temperature,
             "Temperature Measurement",
-            None,
+            UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
             None,
@@ -722,8 +724,9 @@ class SmartThingsSensor(SmartThingsEntity, SensorEntity):
         status = get_device_status(self._device, self._component_id)
         value = status.attributes[self._attribute].value
         if self.device_class != SensorDeviceClass.TIMESTAMP:
+            _LOGGER.debug("value: %s of device %s", value, self._device.name)
             return value
-
+        _LOGGER.debug("value: %s of device %s", value, self._device.name)   
         return dt_util.parse_datetime(value)
 
     @property
