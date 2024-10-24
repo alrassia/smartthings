@@ -16,8 +16,8 @@ from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.components.sensor import SensorDeviceClass
 
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN, UNIT_MAP
+from .entity import SmartThingsEntity
 
 from homeassistant.const import PERCENTAGE
 

@@ -17,9 +17,9 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
 from .utils import format_component_name, get_device_attributes, get_device_status
+from .entity import SmartThingsEntity
 
 Map = namedtuple(
     "map",
@@ -262,21 +262,6 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
             self._attr_unique_id = format_component_name(
                 device.device_id, Platform.SWITCH, component_id, "."
             )
-    """" 
-   def __init__(self, device, component_id: str | None = None) -> None:
-        """"""Init the class.""""""
-        super().__init__(device)
-        self._component_id = component_id
-        self._external_component_id = "main" if component_id is None else component_id
-
-        if component_id is not None:
-            self._attr_name = format_component_name(
-                device.label, Platform.SWITCH, component_id
-            )
-            self._attr_unique_id = format_component_name(
-                device.device_id, Platform.SWITCH, component_id, "."
-            )
-    """
             
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""

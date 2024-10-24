@@ -32,9 +32,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
 from .utils import format_component_name, get_device_attributes, get_device_status
+from .entity import SmartThingsEntity
 
 
 class Map(NamedTuple):
