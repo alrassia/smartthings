@@ -169,6 +169,7 @@ class SmartThingsBinarySensor(SmartThingsEntity, BinarySensorEntity):
 
         if status is None:
             return False
+        return status
         
     @property
     def device_class(self):
