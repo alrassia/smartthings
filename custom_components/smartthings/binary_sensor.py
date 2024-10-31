@@ -168,7 +168,7 @@ class SmartThingsBinarySensor(SmartThingsEntity, BinarySensorEntity):
     def is_on(self):
         """Return true if the binary sensor is on."""
         status = get_device_status(self._device, self._component_id)
-        _LOGGER.debug("status: %s of device %s", status, self._device._name)
+        _LOGGER.debug("status SmartThingsBinarySensor: %s of device %s", status, self._device._name)
         if status is None:
             return False
         return status

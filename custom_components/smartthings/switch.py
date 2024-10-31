@@ -17,6 +17,8 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from custom_components.smartthings import _LOGGER
+
 from .const import DATA_BROKERS, DOMAIN
 from .utils import format_component_name, get_device_attributes, get_device_status
 from .entity import SmartThingsEntity
@@ -295,7 +297,7 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
     def is_on(self) -> bool:
         """Return true if switch is on."""
         status = get_device_status(self._device, self._component_id)
-
+        _LOGGER.debug("status SmartThingsSwitch: %s of device %s", status, self._device._name)
         return False if status is None else status.switch
 
     @property
