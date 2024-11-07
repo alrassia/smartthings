@@ -87,47 +87,53 @@ async def async_setup_entry(
     """Add switches for a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
 
-    """switches = []
+    switches = []
     for device in broker.devices.values():
-        for capability in broker.get_assigned(device.device_id, "switch"):
+        for capability in broker.get_assigned(device.device_id, Platform.SWITCH):
+            device_components = get_device_attributes(device)
+            
             maps = CAPABILITY_TO_SWITCH[capability]
-            if capability in ("custom.autoCleaningMode", "custom.spiMode", Capability.audio_mute):
-                switches.extend(
-                    [
-                        SmartThingsCustomSwitch(
-                            device,
-                            capability,
-                            m.attribute,
-                            m.on_command,
-                            m.off_command,
-                            m.on_value,
-                            m.off_value,
-                            m.name,
-                            m.icon,
-                            m.extra_state_attributes,
-                        )
-                        for m in maps
-                    ]
-                )
-            else:
-                switches.extend(
-                    [
-                        SmartThingsSwitch(
-                            device,
-                            m.attribute,
-                            m.on_command,
-                            m.off_command,
-                            m.on_value,
-                            m.off_value,
-                            m.name,
-                            m.icon,
-                            m.extra_state_attributes,
-                        )
-                        for m in maps
-                    ]
-                )
-
-        if (
+            for component_id in list(device_components.keys()):
+                attributes = device_components[component_id]
+                
+                if capability in ("custom.autoCleaningMode", "custom.spiMode", Capability.audio_mute):
+                    switches.extend(
+                        [
+                            SmartThingsCustomSwitch(
+                                device,
+                                capability,
+                                m.attribute,
+                                m.on_command,
+                                m.off_command,
+                                m.on_value,
+                                m.off_value,
+                                m.name,
+                                m.icon,
+                                m.extra_state_attributes,
+                            )
+                            for m in maps
+                        ]
+                    )
+                else:
+                    switches.extend(
+                        [
+                            SmartThingsSwitch(
+                                device,
+                                component_id,
+                                m.attribute,
+                                m.on_command,
+                                m.off_command,
+                                m.on_value,
+                                m.off_value,
+                                m.name,
+                                m.icon,
+                                m.extra_state_attributes,
+                            )
+                            for m in maps
+                        ]
+                    )
+    async_add_entities(switches)
+""""        if (
             device.status.attributes[Attribute.mnmn].value == "Samsung Electronics"
             and device.type == "OCF"
         ):
@@ -203,9 +209,10 @@ async def async_setup_entry(
                         ),
                     ]
                 )
+""""
 
-    async_add_entities(switches)"""
-    entities = []
+    
+""""    entities = []
 
     for device in broker.devices.values():
         if broker.any_assigned(device.device_id, Platform.SWITCH):
@@ -217,15 +224,15 @@ async def async_setup_entry(
                 if attributes is None or Platform.SWITCH in attributes:
                     entities.append(SmartThingsSwitch(device, component_id))
 
-    async_add_entities(entities)
+    async_add_entities(entities)""""
 
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     """Return all capabilities supported if minimum required are present."""
     # Must be able to be turned on/off.
-    return [
-        capability for capability in CAPABILITY_TO_SWITCH if capability in capabilities
-    ]
+    if Capability.switch in capabilities:
+        return [Capability.switch, Capability.energy_meter, Capability.power_meter]
+    return None
 
 
 class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
@@ -325,6 +332,7 @@ class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
         device: DeviceEntity,
         capability: str,
         attribute: str,
+        component_id: str | None,
         on_command: str,
         off_command: str,
         on_value: str | int | None,
@@ -337,6 +345,7 @@ class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
         super().__init__(device)
         self._capability = capability
         self._attribute = attribute
+        self._external_component_id = "main" if component_id is None else component_id
         self._on_command = on_command
         self._off_command = off_command
         self._on_value = on_value
@@ -348,7 +357,7 @@ class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs) -> None:
         """Turn the switch off."""
         result = await self._device.command(
-            "main", self._capability, self._off_command, [self._off_value]
+            self._external_component_id, self._capability, self._off_command, [self._off_value]
         )
         if result:
             self._device.status.update_attribute_value(self._attribute, self._off_value)
@@ -359,7 +368,7 @@ class SmartThingsCustomSwitch(SmartThingsEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs) -> None:
         """Turn the switch on."""
         result = await self._device.command(
-            "main", self._capability, self._on_command, [self._on_value]
+             self._external_component_id, self._capability, self._on_command, [self._on_value]
         )
         if result:
             self._device.status.update_attribute_value(self._attribute, self._on_value)
