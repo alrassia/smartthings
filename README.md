@@ -1,4 +1,8 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+
+# announcement
+i gave up on this repo, i started afresh in the notsosmartthings repo.
+
 # SmartThings Custom
 A fork of a fork of the Home Assistant SmartThings Integration. This adds better support for Samsung OCF Devices.
 
